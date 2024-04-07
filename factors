@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+# Factor checking challenge
+
+check_factors() {
+	if [ $# -ne 3 ]; then
+		args=("$@")
+		count=0
+		num2=1
+		for arg in "${args[@]}"; do
+			if [ $count -gt 1 ]; then
+				num2=$(echo "$arg*$num2" | bc)
+			fi
+			count=$((count + 1))
+		done
+	else
+		num2=$3
+	fi
+
+	num1=$2
+	num=$(echo "$1" | tr ':' '=')
+
+	result=$(echo "if($num2 > $num1) 1 else 0" | bc)
+	if ((result == 1)); then
+		num_temp=$num1
+		num1=$num2
+		num2=$num_temp
+	fi
+
+	echo "$num$num1*$num2"
+}
+
+if [ $# -ne 1 ]; then
+	echo 'Usage: factors <file>'
+	exit 1
+else
+	while read line; do
+		result=$(factor "$line")
+		check_factors $result
+	done < "$1"
+fi
+

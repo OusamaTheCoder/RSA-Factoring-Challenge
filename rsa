@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+# Challenge: Factor checking
+
+check_factor() {
+	if [ $# -ne 3 ]; then
+		arguments=("$@")
+		counter=0
+		factor_2=1
+		for arg in "${arguments[@]}"; do
+			if [ $counter -gt 1 ]; then
+				factor_2=$(echo "$arg * $factor_2" | bc)
+			fi
+			counter=$((counter + 1))
+		done
+	else
+		factor_2=$3
+	fi
+
+	factor_1=$2
+	number=$(echo "$1" | tr ':' '=')
+
+	result=$(echo "if($factor_2 > $factor_1) 1 else 0" | bc)
+	if ((result == 1)); then
+		temp=$factor_1
+		factor_1=$factor_2
+		factor_2=$temp
+	fi
+
+	echo "$number$factor_1*$factor_2"
+}
+
+if [ $# -ne 1 ]; then
+	echo 'Usage: rsa <file>'
+	exit 1
+else
+	while read line; do
+		result=$(factor "$line")
+		check_factor $result
+	done < "$1"
+fi
+
